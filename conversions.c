@@ -6,12 +6,12 @@ void dec_to_fib(unsigned number, char * output);
 void dec_to_hex(unsigned long long number, char * output);
 void rom_to_dec(char *number, char * output);
 
-int main(int argc, char **argv)
+int main(int argc, char **argv)  // Signal Handler?????
 {
 	char *convert_input;
 
 	// This function will be passed the string
-	char input_string[512];
+	char input_string[512];9.cefors
 	strcpy(input_string, "No new input");
 	unsigned fvalue = 0;
 	unsigned long long dvalue = 0;

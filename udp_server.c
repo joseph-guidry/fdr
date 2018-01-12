@@ -8,46 +8,64 @@
 #include <netdb.h>
 #include <memory.h>
 #include <unistd.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <errno.h>
 
 
 #define maxBufferSize 32
-/*
-void write_time(int output_file)
+
+/* GLOBAL SERVER SOCKET FOR SIG HANDLER */
+int servSocket;
+
+void SIGIOHandler(int signalType)
 {
-  time_t x;
-  register char *s;
-  register int l;
-  extern int write(int, const void *, unsigned int);
+	struct sockaddr_in clientAddr;
+	unsigned int clntLen;
+	int recvMsgSize; // Could check this for IPv6
+	char msgBuffer[maxBufferSize];
 
-  x = time( (time_t *)0 );
-  s = ctime(&x);
-  l = strlen(s);
-  write(output_file, s, l);
-}
-*/
+	printf("signal = %d\n", signalType);
 
-void send_time(int output, struct sockaddr_in * from, int size)
-{
-    time_t x;
-
-    x = time(NULL);
-    x = htonl(x);
-    if ( sendto(output, (void *)&x, sizeof(x), 0, (struct sockaddr *)from, size) != sizeof(x))
-    {
-	perror("sendto() error");
-	exit(-1);
-    }
+	clntLen = sizeof(clientAddr);
+	if (( recvMsgSize = recvfrom(servSocket, msgBuffer, maxBufferSize, 0, 
+								(struct sockaddr *) &clientAddr, &clntLen)) < 0)
+	{
+		if (errno != EWOULDBLOCK)
+		{
+			perror("recvfrom() failed");
+			exit(-7);
+		}
+	}
+	else
+	{
+		printf("Server received a datagram from host %x port %d\n", ntohl(clientAddr.sin_addr.s_addr), ntohs(clientAddr.sin_port));
+		switch(msgBuffer[0]) 
+		{
+			default:
+				write(2, "Server received unexpected datagram contents\n", 46);
+				exit(2);
+			case 'D':
+				sleep(1);
+				strcpy(msgBuffer, "Successful\n");
+				printf("recv size = %d \n", recvMsgSize);
+				sendto(servSocket, msgBuffer, strlen(msgBuffer), 0, (struct sockaddr *) &clientAddr, clntLen);
+			
+		}
+	}
 }
 
 int main(void)
 {
     /* Way to declare functions without including the whole header file */
-	int servSocket;
-    struct sockaddr_in serverINET, client;
-	unsigned int connectionLen;
-	char msgBuffer[maxBufferSize];
+
+    struct sockaddr_in serverINET; //, client;
+	struct sigaction handler;
+	//unsigned int connectionLen;
+	//char msgBuffer[maxBufferSize];
 	unsigned short servPort;
-	int recvMsgSize;
+	//int recvMsgSize;
+	int sockFlags;
 
 	servPort = getuid();
 	printf("Server Port: [%u]\n", servPort);
@@ -72,30 +90,41 @@ int main(void)
 		exit(-2);
 	}
 	
+	/* SIG HANDLER */
+	handler.sa_handler = SIGIOHandler;
+	if (sigfillset(&handler.sa_mask) < 0)
+	{
+		perror("sigfill() failed");
+		exit(-7);
+	}
+	handler.sa_flags = 0;
+
+	if (sigaction(SIGIO, &handler, NULL) < 0)
+	{
+		perror("sigaction() failed");
+		exit(-8);
+	}
+
+	/* NON BLOCKING */
+
+	if ( fcntl(servSocket, F_SETOWN, getpid()) < 0)
+	{
+		perror("process owner change fail");
+		exit(-5);
+	}
+	
+	sockFlags = fcntl(servSocket, F_GETFL);
+
+	if ( fcntl(servSocket, F_SETFL, sockFlags | O_NONBLOCK | FASYNC ) < 0 )
+	{
+		perror("Async/NonBlock error");
+		exit(-6);
+	}
+
 	for(;;)
 	{
-		connectionLen = sizeof(client);
-	
-		if ((recvMsgSize = recvfrom(servSocket, msgBuffer, maxBufferSize, 0, 
-									(struct sockaddr *) &client, &connectionLen)) < 0)
-		{
-			perror("recvfrom() failed");
-			exit(-3);
-		}
-	
-		printf("Server received a datagram from host %x port %d\n", ntohl(client.sin_addr.s_addr), ntohs(client.sin_port));
-		switch(msgBuffer[0]) 
-		{
-			default:
-				write(2, "Server received unexpected datagram contents\n", 46);
-				exit(2);
-			case 'D':
-				sleep(1);
-				strcpy(msgBuffer, "Successful\n");
-				printf("recv size = %d \n", recvMsgSize);
-				sendto(servSocket, msgBuffer, strlen(msgBuffer), 0, (struct sockaddr *) &client, connectionLen);
-				
-		}
+		printf(".\n");
+		sleep(10);
 	}
 
     return 0;
