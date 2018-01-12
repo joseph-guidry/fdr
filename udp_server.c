@@ -93,8 +93,8 @@ int main(void)
 #ifdef MULTIPLE
 	for (unsigned int i = 0; i < MAXSOCKETS; i++)
 	{
-		if (i % 2 == 0)			// Allow for both IPv4 and IPv6 sockets to be created. with 3 ports = 6 sockets
-		{						// 0, 2, 4 = IPv4
+		if (i % 2 == 0)
+		{		
 			printf("making IPv4\n");
 			socket_array[i].fd = create_IP4socket(servPortOffset[i]);
 			socket_array[i].events = POLLIN;
@@ -160,7 +160,6 @@ void SIGIOHandler(int signalType)
 				if(conversions(msgBuffer, MAXBUFFER) < 0)
 				{
 					printf("ERROR");
-	// 	insert error messgae: sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer), 0, (struct sockaddr *) &clientAddr, clntLen);			
 				}
 				//SUCCESS!!
 				sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer), 0, (struct sockaddr *) &clientAddr, clntLen);			
@@ -169,7 +168,7 @@ void SIGIOHandler(int signalType)
 	}
 }
 
-/* Eventually I could reduce the duplication of commmands */
+/* Eventually I could reduce the duplication this */
 
 int create_IP4socket(int port_offset)
 {

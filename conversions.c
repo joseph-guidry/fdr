@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gmp.h>
+#include <ctype.h>
 
 void dec_to_fib(long int number, char * output, int buffer_size);
-//void dec_to_hex(mpz_t number, char * output);
+void dec_to_hex(char * output, int buffer_size);
 void rom_to_dec(char *number, char * output, int buffer_size);
 
 
@@ -39,26 +40,27 @@ int conversions(char *input_string, int buffer_size)
 			printf("value = [%ld]\n", fvalue);
 			dec_to_fib(fvalue, input_string, buffer_size);
 			break;
-/*
 		case 'D':
 			printf("D\n");
 
-			value = strtoull (convert_input + 1, NULL, 10);
-			if (dvalue > 1000000000000000000 ) // This number may need GMP?
+			for ( ;*convert_input; convert_input++)
 			{
-				// This could be a return error message to the file descriptor.
-				perror("Input value out of range");
+				printf(
+				if (!isdigit(*convert_input))
+				{
+					strncpy(input_string, "Input value out of range\n", buffer_size);
+					break;
+				} 
 			}
 
-			printf("value = [%llu]\n", dvalue);
-			dec_to_hex(value, input_string);
+			printf("value = [%s]\n", input_string);
+			dec_to_hex(input_string, buffer_size);
 			break;
-*/
 		case 'R':
 			printf("R\n");
 			convert_input = convert_input + 1;
 			printf("[%s]\n", convert_input);
-			if (strlen(convert_input + 1) > 4)
+			if (strlen(convert_input + 1) >= 4)
 			{
 				// This could be a return error message to the file descriptor.
 				strncpy(input_string, "Input value out of range\n", buffer_size);
@@ -131,10 +133,11 @@ void dec_to_fib(long int number, char * output, int buffer_size)
 	// For case conversion -> use flag as parameter? Defaults to lower case.
 }
 
-void dec_to_hex(unsigned long long number, char * output)
+void dec_to_hex(char * output, int buffer_size)
 {
+	//char * input_data;
 	printf("current output [%s]\n", output);
-	sprintf(output, "0x%llx\n", number);
+	//sprintf(output, "0x%llx\n", number);
 	printf("after output [%s]\n", output);
 	// For case conversion -> use flag as parameter? Defaults to lower case.
 }
@@ -142,48 +145,55 @@ void dec_to_hex(unsigned long long number, char * output)
 void rom_to_dec(char *number, char * output, int buffer_size)
 {
 	int total = 0;
+	int is_upper = 1;
 	printf("output = [%s]\n", number);
 	for (char *p = number; *p ; p++)
 	{
 		printf("[%c]\n", *p);
 		switch(*p)
 		{
-			case 'I':
 			case 'i':
-					// Use lower case letters
-					total += 1;
-					break;
-			case 'V':
+				is_upper = 0;
+			case 'I':
+				total += 1;
+				break;
 			case 'v':
-					total += 5;
-					break;
-			case 'X':
+				is_upper = 0;
+			case 'V':
+				total += 5;
+				break;
 			case 'x':
-					total += 10;
-					break;
-			case 'L':
+				is_upper = 0;
+			case 'X':
+				total += 10;
+				break;
 			case 'l':
-					total += 50;
-					break;
-
-			case 'C':
+				is_upper = 0;
+			case 'L':
+				total += 50;
+				break;
 			case 'c':
+				is_upper = 0;
+			case 'C':
 				total += 100;
 				break;
-			case 'D':
 			case 'd':
+				is_upper = 0;
+			case 'D':
 				total += 500;
 				break;
-			case 'M':
 			case 'm':
+				is_upper = 0;
+			case 'M':
 				total += 1000;
 				break;
 			default:
 				printf("Error\n");
+				snprintf(output, buffer_size, "Invalid Input: %c\n", *p);
 				total = -1;
 				return;
 		}
 	}
-
+	printf("lower case is present %c\n", is_upper == 0 ? 'T':'F');
 	snprintf(output, buffer_size, "0x%x\n", total);
 }
