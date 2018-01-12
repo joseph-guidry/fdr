@@ -1,27 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gmp.h>
 
-void dec_to_fib(unsigned number, char * output);
-void dec_to_hex(unsigned long long number, char * output);
-void rom_to_dec(char *number, char * output);
+void dec_to_fib(long int number, char * output, int buffer_size);
+//void dec_to_hex(mpz_t number, char * output);
+void rom_to_dec(char *number, char * output, int buffer_size);
 
-int conversions(char *input_string)  // Signal Handler?????
+
+int conversions(char *input_string, int buffer_size)  
 {
 	char *convert_input;
 
 	// This function will be passed the string
-	//strcpy(input_string, "No new input");
-	unsigned fvalue = 0;
-	unsigned long long dvalue = 0;
-
-	printf(" dvalue size %lu \n", sizeof(dvalue));
-
-		/* ADD checking!!! */
+	int ret_value = 0;
+	long fvalue;
+	mpz_t value;
+	mpz_init(value);
 
 	convert_input = input_string;
 
-	printf("Here [%s]\n", input_string);
+	printf("input ");
+	mpz_out_str(stdout, 10, value);
+	printf("\n");
+
 	
 	switch(input_string[0])
 	{
@@ -31,15 +33,17 @@ int conversions(char *input_string)  // Signal Handler?????
 			if (fvalue > 300)
 			{
 				// This could be a return error message to the file descriptor.
-				perror("Input value out of range");
+				strncpy(input_string, "Input value out of range\n", buffer_size);
+				break;
 			}
-			printf("value = [%u]\n", fvalue);
-			dec_to_fib(fvalue, input_string);
+			printf("value = [%ld]\n", fvalue);
+			dec_to_fib(fvalue, input_string, buffer_size);
 			break;
+/*
 		case 'D':
 			printf("D\n");
 
-			dvalue = strtoull (convert_input + 1, NULL, 10);
+			value = strtoull (convert_input + 1, NULL, 10);
 			if (dvalue > 1000000000000000000 ) // This number may need GMP?
 			{
 				// This could be a return error message to the file descriptor.
@@ -47,8 +51,9 @@ int conversions(char *input_string)  // Signal Handler?????
 			}
 
 			printf("value = [%llu]\n", dvalue);
-			dec_to_hex(dvalue, input_string);
+			dec_to_hex(value, input_string);
 			break;
+*/
 		case 'R':
 			printf("R\n");
 			convert_input = convert_input + 1;
@@ -56,36 +61,73 @@ int conversions(char *input_string)  // Signal Handler?????
 			if (strlen(convert_input + 1) > 4)
 			{
 				// This could be a return error message to the file descriptor.
-				perror("Input value out of range");
+				strncpy(input_string, "Input value out of range\n", buffer_size);
+				break;
 			}
-			rom_to_dec(convert_input, input_string);
+			rom_to_dec(convert_input, input_string, buffer_size);
 			break;
+
 		default:
-			printf("Invalid Input\n");
+			strncpy(input_string, "Input Invalid\n", buffer_size);
+			ret_value = -1;
+			
 	}
+	
+	//printf("output[%s]\n", input_string);
 
-	printf("output[%s]\n", input_string);
-
-	return 0;
+	return ret_value;
 }
 
 
-void dec_to_fib(unsigned number, char * output /*case flag yes = 1? */)
+void dec_to_fib(long int number, char * output, int buffer_size)
 {
 	//Receive a number and return a hex string representation.
-	//printf("input [%d]\n", number);
+	char * fib_number;
+	printf("input [%ld]\n", number);
 
-	int a = 1, b = 2 , c;
+	mpz_t a, b, fib;
 
-	for(unsigned int count = 2; count < number; count++)
+	/* Initialize variable */
+	mpz_init(a);
+	mpz_init(b);
+	mpz_init(fib);
+
+	/* Set variable */
+	mpz_set_ui (a, 1);
+	mpz_set_ui (b, 1);
+	mpz_set_ui (fib, 0);
+
+	if (number == 0)	
 	{
-		c = a + b;
-		a = b;
-		b = c;
+		snprintf(output, sizeof(char),"0x%x\n", '0');
 	}
-	sprintf(output, "0x%x\n", c);
+	else if (number == 1)
+	{
+		snprintf(output, sizeof(char), "0x%x\n", '1');
+	}
+	else if (number == 2)
+	{
+		snprintf(output, sizeof(char), "0x%x\n", '2');
+	}
+	else
+	{
+		mpz_init(fib);
+		for(unsigned int count = 2; count < number; count++)
+		{
+	
+			mpz_add(fib, a, b);
+			mpz_set(a, b);
+			mpz_set(b, fib);
+		}
+		fib_number = mpz_get_str(NULL, 16, fib);
+		snprintf(output, buffer_size, "0x%s\n", fib_number);
+		free(fib_number);
+	}
 	//printf("Output [%s]\n", output);
-
+	
+	mpz_clear(a);
+	mpz_clear(b);
+	mpz_clear(fib);
 	// For case conversion -> use flag as parameter? Defaults to lower case.
 }
 
@@ -97,7 +139,7 @@ void dec_to_hex(unsigned long long number, char * output)
 	// For case conversion -> use flag as parameter? Defaults to lower case.
 }
 
-void rom_to_dec(char *number, char * output)
+void rom_to_dec(char *number, char * output, int buffer_size)
 {
 	int total = 0;
 	printf("output = [%s]\n", number);
@@ -143,5 +185,5 @@ void rom_to_dec(char *number, char * output)
 		}
 	}
 
-	sprintf(output,"0x%x\n", total);
+	snprintf(output, buffer_size, "0x%x\n", total);
 }
