@@ -40,13 +40,13 @@ int conversions(char *input_string, int buffer_size)
 			// Ensure there is a number to use. 
 			if (!isdigit(input_string[1]))
 			{
-				strncpy(input_string, "Invalid Input\n", buffer_size);
+				strncpy(input_string, "Invalid Input", buffer_size);
 				break;
 			}
 			fvalue = strtol(convert_input, NULL, 10);
 			if (fvalue > 300)
 			{
-				strncpy(input_string, "Input value out of range\n", buffer_size);
+				strncpy(input_string, "Input value out of range", buffer_size);
 				break;
 			}
 			dec_to_fib(fvalue, input_string, buffer_size, is_upper);
@@ -56,10 +56,9 @@ int conversions(char *input_string, int buffer_size)
 		case 'D':
 			for (;*convert_input; convert_input++)
 			{
-				printf("character = %c \n", *convert_input);
 				if (!isdigit(*convert_input))
 				{	//Ensure all values are digits before operation.
-					strncpy(input_string, "Invalid Input\n", buffer_size);
+					strncpy(input_string, "Invalid Input", buffer_size);
 					return ret_value;
 				} 
 			}
@@ -70,13 +69,13 @@ int conversions(char *input_string, int buffer_size)
 		case 'R':
 			if (strlen(convert_input + 1) >= 15)
 			{
-				strncpy(input_string, "Input value out of range\n", buffer_size);
+				strncpy(input_string, "Input value out of range", buffer_size);
 				break;
 			}
 			rom_to_dec(convert_input, input_string, buffer_size, is_upper);
 			break;
 		default:
-			strncpy(input_string, "Input Invalid\n", buffer_size);
+			strncpy(input_string, "Input Invalid", buffer_size);
 			ret_value = -1;
 	}
 
@@ -86,17 +85,12 @@ int conversions(char *input_string, int buffer_size)
 void dec_to_fib(long int number, char * output, int buffer_size, int is_upper)
 {
 	//Receive a number and return the fibonacci number in hexadecimal.
-	printf("here in fib funct\n");
 	char * fib_number;
-	printf("here in fib funct\n");
 	mpz_t fib;
-	mpz_init(fib);
-	printf("here in fib funct %ld\n", number);
 	/* Initialize variable */
-
+	mpz_init(fib);
 	/* Set variable */
 	mpz_fib_ui(fib, number);
-	printf("here in fib funct\n");
 
 	fib_number = mpz_get_str(NULL, 16, fib);
 	snprintf(output, buffer_size, "0x%s", fib_number);

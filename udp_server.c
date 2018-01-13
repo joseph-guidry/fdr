@@ -47,6 +47,7 @@ int main(void)
 		exit(-8);
 	}
 
+	// This could be better designed with less loops.
 	for (unsigned int i = 0; i < MAXSOCKETS; i++)
 	{
 		if (i % 2 == 0)
@@ -82,8 +83,6 @@ void SIGIOHandler(int signalType)
 	memset(msgBuffer, 0, MAXBUFFER);
 
 	int rv = poll(socket_array, MAXSOCKETS, 0);
-	printf("RV = %d\n", rv);
-	
 	if (rv == 0)
 	{
 		perror("poll() error");
@@ -106,7 +105,7 @@ void SIGIOHandler(int signalType)
 			}
 			else
 			{
-				printf("Signal %d: Server received a datagram from host \n", signalType);
+				printf("%s: Server received a datagram from host \n", signalType == 29 ? "SIGIO": "Unknown Signal");
 				if(conversions(msgBuffer, MAXBUFFER) < 0)
 				{
 					printf("ERROR");
