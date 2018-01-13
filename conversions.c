@@ -24,12 +24,10 @@ void convert_to_upper(char * string)
 int conversions(char *input_string, int buffer_size)  
 {
 	char *convert_input;
-
-	// This function will be passed the string
 	int ret_value = 0, is_upper = 1;
 	long fvalue;
-	mpz_t value;
-	mpz_init(value);
+	//mpz_t value;
+	//mpz_init(value);
 
 	convert_input = input_string + 1;
 
@@ -79,7 +77,6 @@ int conversions(char *input_string, int buffer_size)
 			strncpy(input_string, "Input Invalid", buffer_size);
 			ret_value = -1;
 	}
-
 	return ret_value;
 }
 
@@ -97,7 +94,7 @@ void dec_to_fib(long int number, char * output, int buffer_size, int is_upper)
 	snprintf(output, buffer_size, "0x%s", fib_number);
 	free(fib_number);
 	if (is_upper == 1)
-	{ 	// Convert to Upper if Input is all Capitol letters
+	{
 		convert_to_upper(output);
 	}
 	
@@ -182,8 +179,6 @@ int get_rom_value(char numeral)
 {
 	int total = 0;
 	
-	printf("numeral = [%c] \n", numeral);
-
 	switch(numeral)
 	{
 		case 'i':
@@ -222,13 +217,3 @@ int get_rom_value(char numeral)
 	}
 	return total;
 }
-
-
-
-
-
-
-
-
-
-
