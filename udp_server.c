@@ -29,7 +29,7 @@ struct pollfd socket_array[MAXSOCKETS];
 int main(void)
 {
 	
-	unsigned short servPortOffset[] = {0, 0, 1000, 1000, 2000, 2000};
+	unsigned short servPortOffset[] = {0, 1000, 2000};
 
 	/* SIG HANDLER */
 	struct sigaction handler;
@@ -48,20 +48,17 @@ int main(void)
 	}
 
 	// This could be better designed with less loops.
-	for (unsigned int i = 0; i < MAXSOCKETS; i++)
-	{
-		if (i % 2 == 0)
-		{		
+	for (unsigned int i = 0; i < MAXSOCKETS/2; i++)
+	{		
+			// Create IPv4 Socket
 			socket_array[i].fd = create_IP4socket(servPortOffset[i]);
 			socket_array[i].events = POLLIN;
 			socket_array[i].revents = 0;
-		}
-		else
-		{
+		
+			//Create IPv6 Socket
 			socket_array[i].fd = create_IP6socket(servPortOffset[i]);
 			socket_array[i].events = POLLIN;
 			socket_array[i].revents = 0;
-		}
 	}
 
 	for(;;)
@@ -108,10 +105,14 @@ void SIGIOHandler(int signalType)
 				printf("%s: Server received a datagram from host \n", signalType == 29 ? "SIGIO": "Unknown Signal");
 				if(conversions(msgBuffer, MAXBUFFER) < 0)
 				{
-					printf("ERROR");
+					// If the user sends an invalid command. 
+					// TODO - syslog?
+					printf("User attempted: %s", msgBuffer);
 				}
-				//SUCCESS!!
-				sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer) + 1, 0, (struct sockaddr *) &clientAddr, clntLen);			
+				else
+				{
+					sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer) + 1, 0, (struct sockaddr *) &clientAddr, clntLen);
+				}			
 			}
 		}
 	}

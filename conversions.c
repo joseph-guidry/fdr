@@ -7,6 +7,7 @@
 void dec_to_fib(long int number, char * output, int buffer_size, int is_upper);
 void dec_to_hex(char * output, int buffer_size, int is_upper);
 void rom_to_dec(char *number, char * output, int buffer_size, int is_upper);
+int get_rom_value(char numeral);
 
 void convert_to_upper(char * string)
 {
@@ -146,45 +147,40 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 	char *p;
 	for (p = numeral; *p ; p++)
 	{
-		switch(*p)
+		if (get_rom_value(*p) < 0)
 		{
-			case 'i':
-			case 'I':
-				total += 1;
-				break;
-			case 'v':
-			case 'V':
-				total += 5;
-				break;
-			case 'x':
-			case 'X':
-				total += 10;
-				break;
-			case 'l':
-			case 'L':
-				total += 50;
-				break;
-			case 'c':
-			case 'C':
-				total += 100;
-				break;
-			case 'd':
-			case 'D':
-				total += 500;
-				break;
-			case 'm':
-			case 'M':
-				total += 1000;
-				break;
-			default:
-				snprintf(output, buffer_size, "Invalid Input: %c\n", *p);
-				total = -1;
-				return;
+			strncpy(output, "Input Invalid", buffer_size);
+			return;
 		}
+		printf("Char %c \n", *p);
+		printf("strlen(%lu)\n", strlen(p));
+		if ( strlen(p) > 2)
+		{
+			if (get_rom_value(*p) < get_rom_value(*(p+2)) )
+			{
+				strncpy(output, "Input Invalid", buffer_size);
+				return;
+			}
+		}
+		printf("Checking next is bigger %c >= %c\n", *p, *(p+1));
+		if ( get_rom_value(*p) >= get_rom_value(*(p+1)) )
+		{
+			printf("if\n");
+			total = total + get_rom_value(*p);
+		}	
+		else
+		{
+			printf("else\n");
+			total = total + ( get_rom_value(*(p+1)) - get_rom_value(*p) );
+			p++;
+		}
+		printf("total = %d \n", total);
 	}
+
 	if ( total > 4000 )
+	{
 		snprintf(output, buffer_size, "Value is to Large: [%s]", numeral);
-		
+	}	
 	else
 	{
 		snprintf(output, buffer_size, "0x%x", total);
@@ -193,4 +189,60 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 			convert_to_upper(output);
 		}
 	}
+	printf("total = %d\n", total);
 }
+
+int get_rom_value(char numeral)
+{
+	int total = 0;
+	
+	printf("numeral = [%c] \n", numeral);
+
+	switch(numeral)
+	{
+		case 'i':
+		case 'I':
+			total = 1;
+			break;
+		case 'v':
+		case 'V':
+			total = 5;
+			break;
+		case 'x':
+		case 'X':
+			total = 10;
+			break;
+		case 'l':
+		case 'L':
+			total = 50;
+			break;
+		case 'c':
+		case 'C':
+			total = 100;
+			break;
+		case 'd':
+		case 'D':
+			total = 500;
+			break;
+		case 'm':
+		case 'M':
+			total = 1000;
+			break;
+		case '\0':
+			total = 0;
+			break;
+		default:
+			total = -1;
+	}
+	return total;
+}
+
+
+
+
+
+
+
+
+
+

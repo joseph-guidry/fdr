@@ -5,49 +5,87 @@ Project Name:	fdr
 
 Project Goals:
 	<A two to three sentence description of the project and its intent>
-	The goal of this project was 
-to reinforce the concepts taught in the classroom, about the C Socket API and Server/Client 
-	communications with sockets. 
+	The goal of this project was to reinforce the concepts taught in the classroom, about the C Socket API and Server/Client 
+	communications with sockets. This project also created a UDP server that would provide an application of solving math 
+	problems that it receives with the proper protocol parameters.
+
 
 Considerations:
 	<A bulleted list of considerations and conditions which affected the design of your project>
+	- Listening on multiple ports with a signal handler.
+	- Implementing IPv4 and IPv6.
+	- Input checking and response handling.
+	- GMP Library for large numbers (F(300) and 10^20)
+
 
 Initial Design:
 	<A paragraph or more that adequately describes your program's structure and layout discussing the various modules (.c and corresponding .h files) that you implemented>
+	There are two files in this project:
+	conversion.c:
+		conversions():
+			- This handle the response of the protocol.
+			- A switch statement will choose which function to user is requesting
+			  parse the data, check if it is valid, and responsd.
+		get_fib(): 
+			-return a F(n) in hexadecmal
+		get_hex(): 
+			-return a hexadecimal conversion of a number( 0 - 10^20)
+		get_rom(): 
+			-use a non-subtractive method of calculating Roman numerals (I may choose to include if time permits.)
 
-	Create a file structure:
-		/ --- index.html 
-		|
-		|
-		|------/Combatant
-		|			|---combatant_list.html	  
-		|			|---combatant_details.html
-		|
-		|------/Battles
-		|			|---battles_list.html
-		|			|---battles_details.html
-		|
-		|------/cgi-bin
-					|---???
+	udp_server.c:
+		main():
+			- Establishes the sockets needed to enter a infinite loop, waiting for SIGIO to be received.
+		sighandler():
+			- Response to a SIGIO, look at all the sockets, and handle any messages received.
+			- No response to invalid command request. Other should send error message.
+		create_sockets():
+			- Use this to create the sockets for both IPv4 (initially), and IPv6 (required).
 
-		Once estabished 
+	These files will allow a UDP server to receive protocol commands and response accordingly. 
+
+	
 Data Flow:
 	<A paragraph or longer describing the data flow of the program in a sequential manner.  Include a diagram when necessary.>
+	The server starts up creating sockets for both, IPv4 and IPv6 in a non-blocking state, and setting up a signal handler. 
+	Once established with no errors, it will enter a infinite loop. The signal handler will execute on receiving a SIGIO signal,
+	from here it will check if any port has data to receive from.  If data is receive, the signal handler will call the main
+	function, or conversion(), which will handle the data processing.  Response UDP will be conversion, or error if valid option,
+	else it will discarded.  The response will be sent back based on the received address information.
 
 Communication Protocol:
 	<Discuss any custom communication protocol you have used including the various request and responses that may be sent and received.>
-
+	This project implemented a UDP server, using it as the primary protocol. The custom protocol  of the math server handled input.
+	
 Potential Pitfalls:
 	<Discuss any potential issues that you might run into while creating the project>
-	- Prevent SQLi attacks
+	- 
 	- Creating HTML for unique combatants details.
 	- Pull database information and display details with HTML in browser.
 
 Test Plan:
 	User Test:
  		<Describe the steps taken for each user test.>
+		- Build a server that will respond back.
+		- Implement SIGIOHandler.
+		- Convert input.
+		- Send custom response from data received.
 	Test Cases:
 		<A brief overview of the test cases that you implemented.>
+		The test cases are attempts to match the requirements documents and exteme cases.
+		- Strings sent:
+			Simple:
+				"RMMMM"
+				"D10000"
+				"F100"
+			Hard:
+				"RXXXVII"
+				"D100000000000000"
+				"F200"
+			Harder:
+				"RMCMXCVIII"
+				"D10000000000000000000"
+				"F300"
 
 Conclusion:
 	<A review of the project, what worked, what didn’t and how to improve upon your project in the future.>
