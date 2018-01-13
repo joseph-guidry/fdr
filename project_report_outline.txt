@@ -25,13 +25,13 @@ Initial Design:
 		conversions():
 			- This handle the response of the protocol.
 			- A switch statement will choose which function to user is requesting
-			  parse the data, check if it is valid, and responsd.
+			  parse the data, check if it is valid, and responds.
 		get_fib(): 
-			-return a F(n) in hexadecmal
+			-return a F(n) in hexadecimal
 		get_hex(): 
 			-return a hexadecimal conversion of a number( 0 - 10^20)
 		get_rom(): 
-			-use a non-subtractive method of calculating Roman numerals (I may choose to include if time permits.)
+			-use a subtraction method of calculating Roman numerals (I may choose to include if time permits.)
 
 	udp_server.c:
 		main():
@@ -42,8 +42,9 @@ Initial Design:
 		create_sockets():
 			- Use this to create the sockets for both IPv4 (initially), and IPv6 (required).
 
-	These files will allow a UDP server to receive protocol commands and response accordingly. 
-
+	Running ./fdr will initiate the UDP server with six listening ports for messages. The signal handler takes over to handle
+	incoming messages. The implementation of these files will allow a UDP server to receive protocol commands 
+	and response accordingly. 
 	
 Data Flow:
 	<A paragraph or longer describing the data flow of the program in a sequential manner.  Include a diagram when necessary.>
@@ -59,20 +60,20 @@ Communication Protocol:
 	
 Potential Pitfalls:
 	<Discuss any potential issues that you might run into while creating the project>
-	- 
-	- Creating HTML for unique combatants details.
-	- Pull database information and display details with HTML in browser.
+	- Converting Roman Numerals.
+	- Sending and Receiving UDP packets with signal handler.
+	- Using GMP properly.
 
 Test Plan:
 	User Test:
  		<Describe the steps taken for each user test.>
 		- Build a server that will respond back.
 		- Implement SIGIOHandler.
-		- Convert input.
+		- Convert input. 
 		- Send custom response from data received.
 	Test Cases:
 		<A brief overview of the test cases that you implemented.>
-		The test cases are attempts to match the requirements documents and exteme cases.
+		The test cases are attempts to match the requirements documents and extreme cases.
 		- Strings sent:
 			Simple:
 				"RMMMM"
@@ -87,9 +88,14 @@ Test Plan:
 				"D10000000000000000000"
 				"F300"
 
+		- Other tests included bad input and values outside the max allowed range per the requirements document.
+
 Conclusion:
 	<A review of the project, what worked, what didn’t and how to improve upon your project in the future.>
-
+	The project allows the student to make effort in developing a UDP server that is difficult to replicate from any previous example.
+	In implementing a listen on multiple ports, there were different methods to choice from, I selected to use a signal handler and
+	use the poll() to handle the interaction of received messages.  There was plenty of issues to work through, and none that became
+	overwhelming to get to the next section in my initial design.
 
 
 

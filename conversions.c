@@ -134,13 +134,6 @@ void dec_to_hex(char * output, int buffer_size, int is_upper)
 	mpz_clear(input_num);
 }
 
-/* 
-	The Roman Numerals are lower/upper version as found on wikipedia.
-	This is without subtractive notation.
-	For example: 
-		IIII = 4 ( Without substractive notation )
-		IV   = 4 ( With substractive notation )
-*/
 void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 {
 	int total = 0;
@@ -152,8 +145,6 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 			strncpy(output, "Input Invalid", buffer_size);
 			return;
 		}
-		printf("Char %c \n", *p);
-		printf("strlen(%lu)\n", strlen(p));
 		if ( strlen(p) > 2)
 		{
 			if (get_rom_value(*p) < get_rom_value(*(p+2)) )
@@ -162,19 +153,15 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 				return;
 			}
 		}
-		printf("Checking next is bigger %c >= %c\n", *p, *(p+1));
 		if ( get_rom_value(*p) >= get_rom_value(*(p+1)) )
 		{
-			printf("if\n");
 			total = total + get_rom_value(*p);
 		}	
 		else
 		{
-			printf("else\n");
 			total = total + ( get_rom_value(*(p+1)) - get_rom_value(*p) );
 			p++;
 		}
-		printf("total = %d \n", total);
 	}
 
 	if ( total > 4000 )
@@ -189,7 +176,6 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 			convert_to_upper(output);
 		}
 	}
-	printf("total = %d\n", total);
 }
 
 int get_rom_value(char numeral)
