@@ -55,10 +55,10 @@ int main(void)
 			socket_array[i].events = POLLIN;
 			socket_array[i].revents = 0;
 		
-			//Create IPv6 Socket
-			socket_array[i].fd = create_IP6socket(servPortOffset[i]);
-			socket_array[i].events = POLLIN;
-			socket_array[i].revents = 0;
+			//Create IPv6 Socket ( i+3 to offset sockfd for poll())
+			socket_array[i+3].fd = create_IP6socket(servPortOffset[i]);
+			socket_array[i+3].events = POLLIN;
+			socket_array[i+3].revents = 0;
 	}
 
 	for(;;)
@@ -78,8 +78,11 @@ void SIGIOHandler(int signalType)
 	
 	char msgBuffer[MAXBUFFER];
 	memset(msgBuffer, 0, MAXBUFFER);
+	
+
 
 	int rv = poll(socket_array, MAXSOCKETS, 0);
+	printf("rv = %d\n", rv);
 	if (rv == 0)
 	{
 		perror("poll() error");

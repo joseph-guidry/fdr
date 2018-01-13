@@ -26,8 +26,6 @@ int conversions(char *input_string, int buffer_size)
 	char *convert_input;
 	int ret_value = 0, is_upper = 1;
 	long fvalue;
-	//mpz_t value;
-	//mpz_init(value);
 
 	convert_input = input_string + 1;
 
