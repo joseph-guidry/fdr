@@ -19,8 +19,6 @@
 #define MAXBUFFER 512
 #define MAXSOCKETS 6
 
-#define MULTIPLE
-
 void SIGIOHandler(int signalType);
 int create_IP4socket(int port_offset);
 int create_IP6socket(int port_offset);
