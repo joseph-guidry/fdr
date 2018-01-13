@@ -37,7 +37,12 @@ int conversions(char *input_string, int buffer_size)
 		case 'f':
 			is_upper = 0;
 		case 'F':
-			printf("F\n");
+			// Ensure there is a number to use. 
+			if (!isdigit(input_string[1]))
+			{
+				strncpy(input_string, "Invalid Input\n", buffer_size);
+				break;
+			}
 			fvalue = strtol(convert_input, NULL, 10);
 			if (fvalue > 300)
 			{
@@ -49,7 +54,6 @@ int conversions(char *input_string, int buffer_size)
 		case 'd':
 			is_upper = 0;
 		case 'D':
-			printf("D\n");
 			for (;*convert_input; convert_input++)
 			{
 				printf("character = %c \n", *convert_input);
@@ -59,14 +63,11 @@ int conversions(char *input_string, int buffer_size)
 					return ret_value;
 				} 
 			}
-			printf("value = [%s]\n", input_string);
 			dec_to_hex(input_string, buffer_size, is_upper);
 			break;
 		case 'r':
 			is_upper = 0;
 		case 'R':
-			printf("R\n");
-			printf("[%s]\n", convert_input);
 			if (strlen(convert_input + 1) >= 15)
 			{
 				strncpy(input_string, "Input value out of range\n", buffer_size);
@@ -78,62 +79,34 @@ int conversions(char *input_string, int buffer_size)
 			strncpy(input_string, "Input Invalid\n", buffer_size);
 			ret_value = -1;
 	}
+
 	return ret_value;
 }
 
 void dec_to_fib(long int number, char * output, int buffer_size, int is_upper)
 {
 	//Receive a number and return the fibonacci number in hexadecimal.
+	printf("here in fib funct\n");
 	char * fib_number;
-	printf("input [%ld]\n", number);
-
-	mpz_t a, b, fib;
-
-	/* Initialize variable */
-	mpz_init(a);
-	mpz_init(b);
+	printf("here in fib funct\n");
+	mpz_t fib;
 	mpz_init(fib);
+	printf("here in fib funct %ld\n", number);
+	/* Initialize variable */
 
 	/* Set variable */
-	mpz_set_ui (a, 1);
-	mpz_set_ui (b, 1);
-	mpz_set_ui (fib, 0);
+	mpz_fib_ui(fib, number);
+	printf("here in fib funct\n");
 
-	if (number == 0)	
-	{
-		snprintf(output, sizeof(char),"0x%x\n", '0');
-	}
-	else if (number == 1)
-	{
-		snprintf(output, sizeof(char), "0x%x\n", '1');
-	}
-	else if (number == 2)
-	{
-		snprintf(output, sizeof(char), "0x%x\n", '2');
-	}
-	else
-	{
-		mpz_init(fib);
-		for(unsigned int count = 2; count < number; count++)
-		{
-	
-			mpz_add(fib, a, b);
-			mpz_set(a, b);
-			mpz_set(b, fib);
-		}
-		fib_number = mpz_get_str(NULL, 16, fib);
-		snprintf(output, buffer_size, "0x%s\n", fib_number);
-		free(fib_number);
-		if (is_upper == 1)
-		{ 	// Convert to Upper if Input is all Capitol letters
-			convert_to_upper(output);
-		}
+	fib_number = mpz_get_str(NULL, 16, fib);
+	snprintf(output, buffer_size, "0x%s", fib_number);
+	free(fib_number);
+	if (is_upper == 1)
+	{ 	// Convert to Upper if Input is all Capitol letters
+		convert_to_upper(output);
 	}
 	
-	mpz_clear(a);
-	mpz_clear(b);
 	mpz_clear(fib);
-	// For case conversion -> use flag as parameter? Defaults to lower case.
 }
 
 void dec_to_hex(char * output, int buffer_size, int is_upper)
@@ -155,9 +128,7 @@ void dec_to_hex(char * output, int buffer_size, int is_upper)
 	{
 		/* The input Number is smaller than 10^20 */
 		char * input_data = mpz_get_str(NULL, 16, input_num);
-		printf("current output [%s]\n", output);
-		sprintf(output, "0x%s\n", input_data);
-		printf("after output [%s]\n", output);
+		sprintf(output, "0x%s", input_data);
 		free(input_data);
 		if (is_upper == 1)
 		{ 	// Convert to Upper if Input is all Capitol letters
@@ -168,6 +139,13 @@ void dec_to_hex(char * output, int buffer_size, int is_upper)
 	mpz_clear(input_num);
 }
 
+/* 
+	The Roman Numerals are lower/upper version as found on wikipedia.
+	This is without subtractive notation.
+	For example: 
+		IIII = 4 ( Without substractive notation )
+		IV   = 4 ( With substractive notation )
+*/
 void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 {
 	int total = 0;
@@ -205,18 +183,17 @@ void rom_to_dec(char *numeral, char * output, int buffer_size, int is_upper)
 				total += 1000;
 				break;
 			default:
-				printf("Error\n");
 				snprintf(output, buffer_size, "Invalid Input: %c\n", *p);
 				total = -1;
 				return;
 		}
 	}
 	if ( total > 4000 )
-		snprintf(output, buffer_size, "Value is to Large: [%s]\n", numeral);
+		snprintf(output, buffer_size, "Value is to Large: [%s]", numeral);
 		
 	else
 	{
-		snprintf(output, buffer_size, "0x%x\n", total);
+		snprintf(output, buffer_size, "0x%x", total);
 		if (is_upper == 1)
 		{ 	// Convert to Upper if Input is all Capitol letters
 			convert_to_upper(output);

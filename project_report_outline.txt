@@ -1,0 +1,57 @@
+Name: 3013
+Date: 12 JAN 2018	
+Current Module:	Network Programming with C
+Project Name:	fdr
+
+Project Goals:
+	<A two to three sentence description of the project and its intent>
+	The goal of this project was 
+to reinforce the concepts taught in the classroom, about the C Socket API and Server/Client 
+	communications with sockets. 
+
+Considerations:
+	<A bulleted list of considerations and conditions which affected the design of your project>
+
+Initial Design:
+	<A paragraph or more that adequately describes your program's structure and layout discussing the various modules (.c and corresponding .h files) that you implemented>
+
+	Create a file structure:
+		/ --- index.html 
+		|
+		|
+		|------/Combatant
+		|			|---combatant_list.html	  
+		|			|---combatant_details.html
+		|
+		|------/Battles
+		|			|---battles_list.html
+		|			|---battles_details.html
+		|
+		|------/cgi-bin
+					|---???
+
+		Once estabished 
+Data Flow:
+	<A paragraph or longer describing the data flow of the program in a sequential manner.  Include a diagram when necessary.>
+
+Communication Protocol:
+	<Discuss any custom communication protocol you have used including the various request and responses that may be sent and received.>
+
+Potential Pitfalls:
+	<Discuss any potential issues that you might run into while creating the project>
+	- Prevent SQLi attacks
+	- Creating HTML for unique combatants details.
+	- Pull database information and display details with HTML in browser.
+
+Test Plan:
+	User Test:
+ 		<Describe the steps taken for each user test.>
+	Test Cases:
+		<A brief overview of the test cases that you implemented.>
+
+Conclusion:
+	<A review of the project, what worked, what didn’t and how to improve upon your project in the future.>
+
+
+
+

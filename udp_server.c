@@ -30,11 +30,11 @@ struct pollfd socket_array[MAXSOCKETS];
 
 int main(void)
 {
-	struct sigaction handler;
-	unsigned short servPortOffset[] = {0, 0, 1000, 1000, 2000, 2000};
 	
+	unsigned short servPortOffset[] = {0, 0, 1000, 1000, 2000, 2000};
 
 	/* SIG HANDLER */
+	struct sigaction handler;
 	handler.sa_handler = SIGIOHandler;
 	if (sigfillset(&handler.sa_mask) < 0)
 	{
@@ -49,67 +49,21 @@ int main(void)
 		exit(-8);
 	}
 
-#ifdef SINGLE
-    struct sockaddr_in serverINET;
-	int servPort;
-	servPort = getuid();
-	printf("Server Port: [%u]\n", servPort);
-	
-	/* Create a IPv4 UDP socket on UID port */
-	if ((servSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-	{
-		perror("Socket() failure");
-		exit(-1);
-	}
-
-	/* Local Address info */
-	memset(&serverINET, 0, sizeof(struct sockaddr_in));
-	serverINET.sin_family = AF_INET;
-	serverINET.sin_addr.s_addr = htonl(INADDR_ANY);
-	serverINET.sin_port = htons(servPort);
-
-	/* Bind socket to address */
-	if (bind(servSocket, (struct sockaddr *)&serverINET, sizeof(struct sockaddr_in)) < 0)
-	{
-		perror("bind() failure");
-		exit(-2);
-	}
-	
-	/* NON BLOCKING */
-	if ( fcntl(servSocket, F_SETOWN, getpid()) < 0)
-	{
-		perror("process owner change fail");
-		exit(-5);
-	}
-	
-	sockFlags = fcntl(servSocket, F_GETFL);
-	if ( fcntl(servSocket, F_SETFL, sockFlags | O_NONBLOCK | FASYNC ) < 0 )
-	{
-		perror("Async/NonBlock error");
-		exit(-6);
-	}
-#endif
-
-#ifdef MULTIPLE
 	for (unsigned int i = 0; i < MAXSOCKETS; i++)
 	{
 		if (i % 2 == 0)
 		{		
-			printf("making IPv4\n");
 			socket_array[i].fd = create_IP4socket(servPortOffset[i]);
 			socket_array[i].events = POLLIN;
 			socket_array[i].revents = 0;
 		}
 		else
 		{
-			printf("making IPv6\n");
 			socket_array[i].fd = create_IP6socket(servPortOffset[i]);
 			socket_array[i].events = POLLIN;
 			socket_array[i].revents = 0;
 		}
 	}
-
-#endif
 
 	for(;;)
 	{
@@ -122,8 +76,6 @@ int main(void)
 
 void SIGIOHandler(int signalType)
 {
-	printf("signal = %d\n", signalType);
-
 	struct sockaddr_storage clientAddr;
 	socklen_t clntLen = sizeof(clientAddr);
 	int recvMsgSize;
@@ -156,13 +108,13 @@ void SIGIOHandler(int signalType)
 			}
 			else
 			{
-				printf("Server received a datagram from host\n");
+				printf("Signal %d: Server received a datagram from host \n", signalType);
 				if(conversions(msgBuffer, MAXBUFFER) < 0)
 				{
 					printf("ERROR");
 				}
 				//SUCCESS!!
-				sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer), 0, (struct sockaddr *) &clientAddr, clntLen);			
+				sendto(socket_array[i].fd, msgBuffer, strlen(msgBuffer) + 1, 0, (struct sockaddr *) &clientAddr, clntLen);			
 			}
 		}
 	}
@@ -178,7 +130,7 @@ int create_IP4socket(int port_offset)
 	int sockFlags;
 
 	servPort = getuid() + port_offset;
-	printf("Server Port: [%u]\n", servPort);
+	printf("Open Server IPv4 Socket on  Port: [%u]\n", servPort);
 	
 	/* Create a IPv4 UDP socket on UID port */
 	if ((servSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
@@ -226,9 +178,9 @@ int create_IP6socket(int port_offset)
 	int sockFlags;
 
 	servPort = getuid() + port_offset;
-	printf("Server Port: [%u]\n", servPort);
+	printf("Open Server IPv6 Socket on  Port: [%u]\n", servPort);
 	
-	/* Create a IPv4 UDP socket on UID port */
+	/* Create a IPv6 UDP socket on UID port */
 	if ((servSocket = socket(PF_INET6, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 	{
 		perror("Socket() failure");
