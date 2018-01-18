@@ -94,7 +94,7 @@ void SIGIOHandler(int signalType)
 		{
 			if ((socket_array[i].revents & POLLIN) == 0)
 				continue;
-			if (( recvMsgSize = recvfrom(socket_array[i].fd, msgBuffer, MAXBUFFER, 0, 
+			if (( recvMsgSize = recvfrom(socket_array[i].fd, msgBuffer, MAXBUFFER - 1, 0, 
 										(struct sockaddr *) &clientAddr, &clntLen)) < 0)
 			{
 				if (errno != EWOULDBLOCK)
@@ -105,6 +105,7 @@ void SIGIOHandler(int signalType)
 			}
 			else
 			{
+				msgBuffer[MAXBUFFER] = '\0';
 				printf("%s: Server received a datagram from host \n", signalType == 29 ? "SIGIO": "Unknown Signal");
 				if(conversions(msgBuffer, MAXBUFFER) < 0)
 				{
